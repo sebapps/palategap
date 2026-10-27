@@ -1,0 +1,835 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PalateGap :: Find the restaurant your neighborhood is already craving</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='8' y='8' width='52' height='52' fill='%23FFD1BB'/%3E%3Crect x='4' y='4' width='52' height='52' fill='%23E2A165'/%3E%3Ctext x='30' y='44' font-family='Arial Black,Arial' font-weight='900' font-size='38' text-anchor='middle' fill='%2312353A'%3EP%3C/text%3E%3C/svg%3E">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            /* Palette pulled straight from the logo */
+            --color-bg: #FFFFFF;
+            --color-wash: #FFF7F1;          /* faint peach tint for surfaces */
+            --color-ink: #12353A;           /* deep teal, the logo's complement */
+            --color-orange: #E2A165;        /* logo orange */
+            --color-peach: #FFD1BB;         /* logo shadow peach */
+            --color-accent-ink: #A35F1F;    /* orange dark enough for text on white */
+            --color-muted: #55696C;
+            --color-line: #EBDDD2;
+            --font-display: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+            --font-body: 'Figtree', -apple-system, BlinkMacSystemFont, sans-serif;
+            --offset: 6px 6px 0 var(--color-peach);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: var(--color-bg);
+            color: var(--color-ink);
+            font-family: var(--font-body);
+            font-size: 1rem;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        :focus-visible {
+            outline: 3px solid var(--color-ink);
+            outline-offset: 3px;
+        }
+
+        .container {
+            max-width: 1040px;
+            margin: 0 auto;
+            padding: 3.5rem 1.5rem 7rem;
+        }
+
+        /* ---------- Hero ---------- */
+        header {
+            text-align: center;
+            padding: 1rem 0 3.5rem;
+        }
+
+        /* The logo file has generous empty margins; crop to the lettering */
+        .logo-crop {
+            width: min(340px, 72vw);
+            aspect-ratio: 394 / 174;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+
+        .logo-crop img {
+            display: block;
+            width: calc(500 / 394 * 100%);
+            height: auto;
+            max-width: none;
+            margin-left: calc(-50 / 394 * 100%);
+            margin-top: calc(-13 / 394 * 100%);
+        }
+
+        .brand-subtitle {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: var(--color-muted);
+            margin-top: 1.5rem;
+        }
+
+        /* ---------- Search ---------- */
+        .search-card {
+            max-width: 760px;
+            margin: 0 auto 4rem;
+        }
+
+        .form-label {
+            display: block;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.75rem;
+            line-height: 1.15;
+            margin-bottom: 1rem;
+        }
+
+        /* Input and button read as one bar, with the logo's offset shadow */
+        .input-group {
+            display: flex;
+            border: 2px solid var(--color-ink);
+            background: #FFF;
+            box-shadow: var(--offset);
+        }
+
+        input[type="text"] {
+            flex: 1;
+            min-width: 0;
+            padding: 1rem 1.25rem;
+            font-size: 1.05rem;
+            font-family: var(--font-body);
+            border: none;
+            border-radius: 0;
+            background: transparent;
+            color: var(--color-ink);
+            outline: none;
+        }
+
+        input[type="text"]::placeholder { color: #8A9A9C; }
+
+        .input-group:focus-within {
+            outline: 3px solid var(--color-ink);
+            outline-offset: 3px;
+        }
+
+        .btn {
+            background: var(--color-ink);
+            color: #FFF;
+            border: none;
+            border-radius: 0;
+            padding: 1rem 1.75rem;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: var(--font-body);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: background-color 0.15s ease, transform 0.1s ease;
+        }
+
+        .btn:hover { background: #1C4A50; }
+        .btn:active { transform: scale(0.98); }
+        .btn:disabled { opacity: 0.7; cursor: progress; }
+
+        .btn-accent {
+            background: var(--color-orange);
+            color: var(--color-ink);
+            font-weight: 700;
+        }
+
+        .btn-accent:hover { background: #D99352; }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--color-ink);
+            border: 2px solid var(--color-ink);
+        }
+
+        .btn-outline:hover { background: var(--color-wash); }
+
+        /* ---------- Location options ---------- */
+        .options-panel {
+            margin-top: 2.75rem;
+        }
+
+        .options-title {
+            font-weight: 600;
+            color: var(--color-muted);
+            margin-bottom: 0.75rem;
+        }
+
+        .location-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .location-option-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.25rem;
+            border: 1px solid var(--color-line);
+            border-left: 6px solid var(--color-line);
+            cursor: pointer;
+            background: #FFF;
+            transition: border-color 0.15s, background-color 0.15s;
+        }
+
+        .location-option-item:hover {
+            border-left-color: var(--color-orange);
+            background: var(--color-wash);
+        }
+
+        .location-option-item.selected {
+            border-color: var(--color-ink);
+            border-left-color: var(--color-orange);
+            background: var(--color-peach);
+        }
+
+        .location-name { font-weight: 600; }
+
+        .location-id {
+            font-size: 0.8rem;
+            color: var(--color-muted);
+        }
+
+        .location-option-item.selected .location-id { color: var(--color-ink); }
+
+        .actions-row {
+            margin-top: 1.5rem;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        /* ---------- Loading ---------- */
+        .loading-state {
+            max-width: 760px;
+            margin: 0 auto;
+            text-align: center;
+            padding: 3.5rem 2rem;
+            background: var(--color-wash);
+        }
+
+        .spinner {
+            width: 44px;
+            height: 44px;
+            border: 5px solid var(--color-peach);
+            border-top-color: var(--color-orange);
+            border-radius: 50%;
+            animation: spin 0.9s linear infinite;
+            margin: 0 auto 1.5rem;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .loading-text {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.75rem;
+            line-height: 1.2;
+        }
+
+        .loading-subtext {
+            color: var(--color-muted);
+            margin: 0.5rem auto 0;
+            max-width: 48ch;
+        }
+
+        /* ---------- Results ---------- */
+        .results-section {
+            display: flex;
+            flex-direction: column;
+            gap: 4.5rem;
+        }
+
+        .section-header { margin-bottom: 1.75rem; }
+
+        .section-title {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 2.5rem;
+            line-height: 1.1;
+        }
+
+        .section-subtitle {
+            color: var(--color-muted);
+            margin-top: 0.25rem;
+        }
+
+        /* Concepts */
+        .concepts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .concept-card {
+            background: var(--color-wash);
+            border: 1px solid var(--color-line);
+            padding: 1.75rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .concept-title {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 2rem;
+            line-height: 1.1;
+            margin-bottom: 0.35rem;
+        }
+
+        .concept-tagline {
+            font-style: italic;
+            color: var(--color-accent-ink);
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+        }
+
+        .concept-detail { margin-bottom: 1.1rem; }
+
+        .concept-detail strong {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 0.15rem;
+        }
+
+        .concept-detail p { color: #2B4A4F; }
+
+        /* Competitors */
+        .competitors-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+            gap: 1.25rem 2rem;
+        }
+
+        .competitor-card {
+            border-top: 3px solid var(--color-ink);
+            padding-top: 0.9rem;
+        }
+
+        .competitor-name {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.4rem;
+            line-height: 1.2;
+            margin-bottom: 0.4rem;
+        }
+
+        .competitor-style {
+            display: inline-block;
+            background: var(--color-peach);
+            padding: 0.1rem 0.6rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 0.6rem;
+        }
+
+        .competitor-notes {
+            font-size: 0.92rem;
+            color: var(--color-muted);
+        }
+
+        /* Feasibility */
+        .feasibility-card {
+            border-left: 6px solid var(--color-orange);
+            padding: 0.25rem 0 0.25rem 1.75rem;
+            max-width: 76ch;
+            font-size: 1.1rem;
+            line-height: 1.75;
+        }
+
+        /* Recommendation: the one loud moment */
+        .recommendation-card {
+            background: var(--color-ink);
+            color: #FFF;
+            padding: 3rem;
+            box-shadow: 10px 10px 0 var(--color-peach);
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .recommendation-tag {
+            color: var(--color-peach);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .winning-concept-name {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: clamp(2.75rem, 7vw, 4.5rem);
+            line-height: 1;
+            margin-bottom: 1.25rem;
+            color: var(--color-orange);
+        }
+
+        .recommendation-rationale {
+            font-size: 1.1rem;
+            line-height: 1.75;
+            max-width: 68ch;
+            color: #E8F0F0;
+        }
+
+        /* ---------- Call logic / metadata ---------- */
+        .debug-toggle-container { text-align: center; }
+
+        .debug-card {
+            background: var(--color-wash);
+            border: 1px solid var(--color-line);
+            padding: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        .debug-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+            gap: 1.25rem;
+            margin-top: 1.5rem;
+        }
+
+        .debug-group {
+            background: #FFF;
+            border: 1px solid var(--color-line);
+            padding: 1.25rem;
+        }
+
+        .debug-group-title {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.25rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .tag-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+        }
+
+        .badge {
+            font-size: 0.8rem;
+            padding: 0.2rem 0.6rem;
+            background: var(--color-wash);
+            border: 1px solid var(--color-line);
+            color: var(--color-ink);
+        }
+
+        .badge-accent {
+            background: var(--color-peach);
+            border-color: var(--color-peach);
+            font-weight: 600;
+        }
+
+        .empty-text {
+            font-size: 0.85rem;
+            color: var(--color-muted);
+            font-style: italic;
+        }
+
+        /* ---------- Idea choice (after a location is selected) ---------- */
+        .idea-choice {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--color-line);
+        }
+
+        .idea-question {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.75rem;
+            line-height: 1.15;
+            margin-bottom: 1rem;
+        }
+
+        .idea-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .idea-form { margin-top: 1.75rem; }
+
+        .idea-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        textarea {
+            display: block;
+            width: 100%;
+            padding: 1rem 1.25rem;
+            font-family: var(--font-body);
+            font-size: 1.05rem;
+            line-height: 1.6;
+            color: var(--color-ink);
+            background: #FFF;
+            border: 2px solid var(--color-ink);
+            border-radius: 0;
+            box-shadow: var(--offset);
+            resize: vertical;
+            min-height: 8rem;
+        }
+
+        textarea::placeholder { color: #8A9A9C; }
+
+        /* ---------- Idea critique ---------- */
+        .verdict-card {
+            display: flex;
+            align-items: center;
+            gap: 2.5rem;
+            background: var(--color-ink);
+            color: #FFF;
+            padding: 2.5rem 3rem;
+            box-shadow: 10px 10px 0 var(--color-peach);
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .verdict-score {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .verdict-score-number {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 6rem;
+            line-height: 0.9;
+            color: var(--color-orange);
+        }
+
+        .verdict-score-max {
+            font-size: 0.85rem;
+            color: var(--color-peach);
+            margin-top: 0.4rem;
+        }
+
+        .verdict-label {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: clamp(2rem, 5vw, 3rem);
+            line-height: 1.05;
+            margin-bottom: 0.75rem;
+        }
+
+        .verdict-summary {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            max-width: 62ch;
+            color: #E8F0F0;
+        }
+
+        .taste-text { max-width: 76ch; }
+
+        .taste-grid,
+        .pros-cons-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+            gap: 1.25rem 3rem;
+        }
+
+        .taste-grid .debug-group { background: var(--color-wash); }
+
+        .pros-cons-grid .section-title { margin-bottom: 1rem; }
+
+        .point-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.9rem;
+        }
+
+        .point-list li {
+            border-left: 6px solid var(--color-orange);
+            padding-left: 1rem;
+            max-width: 60ch;
+        }
+
+        .point-list-risk li { border-left-color: var(--color-ink); }
+
+        /* Pivot is a supporting note, so it stays quieter than the verdict */
+        #pivotSection .recommendation-card {
+            background: var(--color-peach);
+            color: var(--color-ink);
+            box-shadow: none;
+            margin: 0;
+            padding: 2rem 2.25rem;
+        }
+
+        #pivotSection .recommendation-tag {
+            color: var(--color-ink);
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.6rem;
+            line-height: 1.15;
+            margin-bottom: 0.5rem;
+        }
+
+        #pivotSection .pivot-text { color: var(--color-ink); }
+
+        .debug-wrapper { margin-top: 4.5rem; }
+
+        /* ---------- Utilities ---------- */
+        .hidden { display: none !important; }
+
+        .error-message {
+            color: #8A1C1C;
+            background: #FFF1F0;
+            border-left: 6px solid #C53030;
+            padding: 1rem 1.25rem;
+            margin-top: 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        @media (max-width: 560px) {
+            .container { padding-top: 2rem; }
+            .input-group { flex-direction: column; }
+            .input-group .btn { width: 100%; }
+            .recommendation-card { padding: 2rem 1.5rem; }
+            .verdict-card { flex-direction: column; align-items: flex-start; gap: 1rem; padding: 2rem 1.5rem; }
+            .idea-buttons .btn { width: 100%; }
+            .debug-card { padding: 1.25rem; }
+            .section-title { font-size: 2.1rem; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .spinner { animation-duration: 3s; }
+            .btn { transition: none; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Header -->
+    <header>
+        <h1 class="logo-crop">
+            <img src="/static/palate-gap-logo.png" alt="PalateGap" width="500" height="200">
+        </h1>
+        <p class="brand-subtitle">Find the restaurant your neighborhood is already craving.</p>
+    </header>
+
+    <!-- STEP 1: Search Form & Options Selection -->
+    <section class="search-card">
+        <label for="locationInput" class="form-label">Where are you planning your next concept?</label>
+        <div class="input-group">
+            <input type="text" id="locationInput" placeholder="Enter a neighborhood or city (e.g., Kendall, Brooklyn, Wynwood)" />
+            <button id="searchBtn" class="btn">Find Location</button>
+        </div>
+
+        <!-- Options Container (Populated after Step 1 search) -->
+        <div id="optionsPanel" class="options-panel hidden">
+            <p class="options-title">Select the specific target market:</p>
+            <div id="locationOptionsList" class="location-options"></div>
+
+            <!-- Appears once a location is selected -->
+            <div id="ideaChoice" class="idea-choice hidden">
+                <p class="idea-question">Do you have a restaurant idea in mind?</p>
+                <div class="idea-buttons">
+                    <button id="hasIdeaBtn" class="btn btn-outline">Yes, I have an idea</button>
+                    <button id="analyzeBtn" class="btn btn-accent">No, give me some ideas</button>
+                </div>
+
+                <div id="ideaForm" class="idea-form hidden">
+                    <label for="ideaDescription" class="idea-label">Describe your concept</label>
+                    <textarea id="ideaDescription" rows="5" maxlength="2000" placeholder="e.g., A casual Peruvian rotisserie chicken counter with pisco cocktails, open late, aimed at young professionals and families."></textarea>
+                    <div class="actions-row">
+                        <button id="critiqueBtn" class="btn">Evaluate my idea</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="errorMessage" class="error-message hidden"></div>
+    </section>
+
+    <!-- LOADING STATE -->
+    <div id="loadingState" class="loading-state hidden">
+        <div class="spinner"></div>
+        <div class="loading-text">Analyzing local taste signals and competition</div>
+        <p class="loading-subtext">Mapping culture markers, identifying market gaps, and querying active dining search grounding...</p>
+    </div>
+
+    <!-- STEP 2: Analysis Results Output -->
+    <main id="resultsSection" class="results-section hidden">
+
+        <!-- Section 1: Generated Concepts -->
+        <section>
+            <div class="section-header">
+                <h2 class="section-title">Potential concepts</h2>
+                <p class="section-subtitle">Tailored restaurant ideas derived from regional affinity preferences</p>
+            </div>
+            <div id="conceptsGrid" class="concepts-grid"></div>
+        </section>
+
+        <!-- Section 2: Local Competitors Identified -->
+        <section>
+            <div class="section-header">
+                <h2 class="section-title">Mapped competition</h2>
+                <p class="section-subtitle">Active establishments operating in overlapping culinary segments</p>
+            </div>
+            <div id="competitorsList" class="competitors-list"></div>
+        </section>
+
+        <!-- Section 3: Market Feasibility Analysis -->
+        <section>
+            <div class="section-header">
+                <h2 class="section-title">Market feasibility and density</h2>
+                <p class="section-subtitle">Evaluation of saturation levels versus untapped market demand</p>
+            </div>
+            <div class="feasibility-card">
+                <p id="feasibilityAnalysisText"></p>
+            </div>
+        </section>
+
+        <!-- Section 4: Winning Recommendation -->
+        <section>
+            <div class="recommendation-card">
+                <div class="recommendation-tag">Strategic recommendation</div>
+                <h2 id="winningConceptName" class="winning-concept-name"></h2>
+                <p id="recommendationRationale" class="recommendation-rationale"></p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- STEP 2b: Idea critique output -->
+    <main id="critiqueSection" class="results-section hidden">
+
+        <section>
+            <div class="verdict-card">
+                <div class="verdict-score">
+                    <span id="critiqueScore" class="verdict-score-number"></span>
+                    <span class="verdict-score-max">out of 10</span>
+                </div>
+                <div class="verdict-body">
+                    <h2 id="critiqueVerdict" class="verdict-label"></h2>
+                    <p id="critiqueSummary" class="verdict-summary"></p>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="section-header">
+                <h2 class="section-title">Why it works or doesn't</h2>
+                <p class="section-subtitle">The case for and against your concept in this location</p>
+            </div>
+            <div class="feasibility-card">
+                <p id="critiqueAnalysis"></p>
+            </div>
+        </section>
+
+        <section>
+            <div class="section-header">
+                <h2 class="section-title">Fit with local taste</h2>
+                <p id="critiqueTasteAlignment" class="section-subtitle taste-text"></p>
+            </div>
+            <div class="taste-grid">
+                <div class="debug-group">
+                    <div class="debug-group-title">Signals your idea taps into</div>
+                    <div id="critiqueMatchedTags" class="tag-badges"></div>
+                </div>
+                <div class="debug-group">
+                    <div class="debug-group-title">Signals it ignores or contradicts</div>
+                    <div id="critiqueConflictingTags" class="tag-badges"></div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="pros-cons-grid">
+                <div>
+                    <h2 class="section-title">Strengths</h2>
+                    <ul id="critiqueStrengths" class="point-list"></ul>
+                </div>
+                <div>
+                    <h2 class="section-title">Risks</h2>
+                    <ul id="critiqueRisks" class="point-list point-list-risk"></ul>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="section-header">
+                <h2 class="section-title">Mapped competition</h2>
+                <p id="critiqueSaturation" class="section-subtitle taste-text"></p>
+            </div>
+            <div id="critiqueCompetitors" class="competitors-list"></div>
+        </section>
+
+        <section id="pivotSection" class="hidden">
+            <div class="recommendation-card">
+                <div class="recommendation-tag">A small pivot that could make it a winner</div>
+                <p id="critiquePivot" class="recommendation-rationale pivot-text"></p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Shared: Collapsible Logic & Call Metadata (used by both flows) -->
+    <div id="debugWrapper" class="debug-wrapper hidden">
+        <section>
+            <div class="debug-toggle-container">
+                <button id="toggleLogicBtn" class="btn btn-outline">
+                    <span id="toggleText">Show Call Logic & Metadata</span>
+                </button>
+            </div>
+
+            <div id="logicDebugSection" class="debug-card hidden">
+                <div class="section-header" style="margin-bottom: 0.5rem;">
+                    <h3 class="section-title" style="font-size: 1.9rem;">Affinity analysis and culture data signals</h3>
+                    <p class="section-subtitle">Categorized taste signals retrieved from local cultural data before Gemini concept synthesis</p>
+                </div>
+
+                <div class="debug-grid">
+                    <div class="debug-group">
+                        <div class="debug-group-title">Top artists</div>
+                        <div id="debugArtists" class="tag-badges"></div>
+                    </div>
+                    <div class="debug-group">
+                        <div class="debug-group-title">Top books</div>
+                        <div id="debugBooks" class="tag-badges"></div>
+                    </div>
+                    <div class="debug-group">
+                        <div class="debug-group-title">Top movies</div>
+                        <div id="debugMovies" class="tag-badges"></div>
+                    </div>
+                    <div class="debug-group">
+                        <div class="debug-group-title">Top TV shows</div>
+                        <div id="debugTvShows" class="tag-badges"></div>
+                    </div>
+                    <div class="debug-group">
+                        <div class="debug-group-title">Top brands</div>
+                        <div id="debugBrands" class="tag-badges"></div>
+                    </div>
+                    <div class="debug-group">
+                        <div class="debug-group-title">Filtered restaurant tags</div>
+                        <div id="debugTags" class="tag-badges"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+</div>
+<script src="/static/app.js"></script>
+</body>
+</html>
